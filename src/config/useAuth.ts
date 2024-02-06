@@ -1,16 +1,8 @@
-import { ref, type Ref } from 'vue'
-import { type AuthenticationResult, type AccountInfo, type RedirectRequest} from '@azure/msal-browser'
-import { myMSALObj } from './msalConfig'
-interface AuthComposition {
-  isAuthenticated: Ref<boolean>
-  user: Ref<AccountInfo | null>
-  login: () => Promise<void>
-  logout: () => void
-  handleRedirect: () => Promise<AuthenticationResult | null>
-}
-export function useAuth(): AuthComposition {
+import { ref } from 'vue'
+import { myMSALObj, state } from './msalConfig'
+
+export function useAuth() {
   const isAuthenticated = ref(false)
-  const user = ref<AccountInfo | null>(null)
 
   const login = async () => {
     try {
@@ -18,24 +10,34 @@ export function useAuth(): AuthComposition {
       if (!myMSALObj) {
         throw new Error('MSAL not initialized. Call initializeMsal() before using MSAL API.')
       }
-      await myMSALObj.loginRedirect();
+      await myMSALObj.loginRedirect()
       isAuthenticated.value = true
+
+      const loginResponse = await myMSALObj.loginRedirect()
+      isAuthenticated.value = true
+      console.log('Login success:', loginResponse)
     } catch (error) {
       console.error('Login error:', error)
     }
   }
-  const handleRedirect = async () => {
-    return await myMSALObj.handleRedirectPromise();
-  };
-  
+
   const logout = () => {
-    // Check if MSAL is initialized before using it
     if (!myMSALObj) {
       throw new Error('MSAL not initialized. Call initializeMsal() before using MSAL API.')
     }
     myMSALObj.logoutRedirect()
     isAuthenticated.value = false
-    user.value = null
+    console.log('Logged out')
   }
-  return { isAuthenticated, user, login, logout, handleRedirect }
+  const handleRedirect = async () => {
+    try {
+      await myMSALObj.handleRedirectPromise()
+      state.isAuthenticated = myMSALObj.getAllAccounts().length > 0
+      state.user = myMSALObj.getAllAccounts()[0]
+    } catch (error) {
+      console.error('Redirect error:', error)
+    }
+  }
+
+  return { isAuthenticated, login, logout, handleRedirect }
 }

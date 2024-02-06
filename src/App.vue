@@ -1,22 +1,29 @@
 <template>
-  <div v-if="isAuth">
-    <div>Welcome {{ user?.name }}!!</div>
-    <button @click="handleLogout">Log-Out</button>
-  </div>
-  <div v-else>
-    <button @click="handleLogin">Log-In</button>
+  <div>
+    <div v-if="state.isAuthenticated">
+      <div>Welcome, {{ state.user.name }}!</div>
+      <button @click="handleLogout">Log Out</button>
+    </div>
+    <div v-else>
+      <button @click="handleLogin">Log In</button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useAuth } from './config/useAuth';
-import { myMSALObj } from './config/msalConfig';
-import type { AccountInfo } from '@azure/msal-browser';
+import { myMSALObj, state } from './config/msalConfig';
 
-const auth = useAuth();
-const isAuth = ref(false);
-const user = ref<AccountInfo | null>(null);
+const { login, logout, handleRedirect } = useAuth();
+
+const handleLogin = async () => {
+  await login();
+};
+
+const handleLogout = () => {
+  logout();
+};
 
 const initialize = async () => {
   try {
@@ -25,16 +32,8 @@ const initialize = async () => {
     console.log('Initialization error', error);
   }
 };
-const handleLogin = async () => {
-  await auth.login();
-  isAuth.value = true;
-};
-const handleLogout = async () => {
-  auth.logout();
-  isAuth.value = false;
-};
 onMounted(async () => {
   await initialize();
-  await auth.handleRedirect();
+  await handleRedirect();
 });
 </script>
