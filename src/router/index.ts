@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import { msalInstance } from '@/config/msalConfig'
+import type { AccountInfo } from '@azure/msal-browser'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,12 +14,22 @@ const router = createRouter({
     {
       path: '/about',
       name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
       component: () => import('../views/AboutView.vue')
     }
   ]
 })
-
+router.beforeEach(async (to, from) => {
+  const accounts: AccountInfo[] | null = msalInstance.getAllAccounts()
+  if (to.matched.some((record) => record.meta.requiresAdmin)) {
+    if (
+      !accounts ||
+      accounts.every(
+        (account) => !account.idTokenClaims || !account.idTokenClaims?.roles?.includes('enable')
+      )
+    ) {
+      // Redirect to a login page or show an error message
+      return { name: 'Login' }
+    }
+  }
+})
 export default router

@@ -51,7 +51,7 @@ export function msalService() {
         throw new Error('No accounts found. Please login first.')
       }
       const silentRequest = {
-        scopes: ['api://0e69c557-52c8-4680-9c26-e3899a493e01/User.Read'],
+        scopes: ['api://79f1f415-f349-4008-affd-18cbb6c54b95/Po.Read'],
         account: accounts[0]
       }
       const silentResponse = await msalInstance.acquireTokenSilent(silentRequest)
