@@ -3,6 +3,7 @@
     <div v-if="state.isAuthenticated">
       <div>Welcome, {{ state.user?.name }}!</div>
       <button @click="handleLogout">Log Out</button>
+      <RouterLink to="/about">About</RouterLink>
     </div>
     <div v-else>
       <button @click="handleLogin">Log In</button>

@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import { msalInstance } from '@/config/msalConfig'
-import type { AccountInfo } from '@azure/msal-browser'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,22 +13,21 @@ const router = createRouter({
     {
       path: '/about',
       name: 'about',
-      component: () => import('../views/AboutView.vue')
+      component: () => import('../views/AboutView.vue'),
+      meta: { requiresAdmin: true }
     }
   ]
 })
 router.beforeEach(async (to, from) => {
-  const accounts: AccountInfo[] | null = msalInstance.getAllAccounts()
+  const accounts = msalInstance.getAllAccounts()
   if (to.matched.some((record) => record.meta.requiresAdmin)) {
-    if (
-      !accounts ||
-      accounts.every(
-        (account) => !account.idTokenClaims || !account.idTokenClaims?.roles?.includes('Enable.PO')
-      )
-    ) {
-      // Redirect to a login page or show an error message
-      return { name: 'Login' }
+    const userHasAdminRole = accounts.some((account) =>
+      account.idTokenClaims?.roles?.includes('Enable.PO')
+    )
+    if (!userHasAdminRole) {
+      return { name: 'login' }
     }
   }
+  return true
 })
 export default router
