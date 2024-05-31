@@ -24,7 +24,7 @@ router.beforeEach(async (to, from) => {
     if (
       !accounts ||
       accounts.every(
-        (account) => !account.idTokenClaims || !account.idTokenClaims?.roles?.includes('enable')
+        (account) => !account.idTokenClaims || !account.idTokenClaims?.roles?.includes('Enable.PO')
       )
     ) {
       // Redirect to a login page or show an error message
