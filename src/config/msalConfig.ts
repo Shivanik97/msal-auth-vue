@@ -7,8 +7,8 @@ import { reactive } from 'vue'
 
 export const msalConfig = {
   auth: {
-    clientId: '79f1f415-f349-4008-affd-18cbb6c54b95',
-    authority: 'https://login.microsoftonline.com/8f6bd982-92c3-4de0-985d-0e287c55e379',
+    clientId: 'Your client id',
+    authority: 'https://login.microsoftonline.com/your_tenant_id',
     redirectUri: window.location.origin, // Replace with your actual redirect URI
     postLogoutUri: window.location.origin
   },
